@@ -172,6 +172,10 @@ export const caqWeeklyQuestions = [
 
 export const caqOptions = ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'];
 
+export const caqOptionScores: Record<string, number> = {
+  Never: 0, Rarely: 1, Sometimes: 2, Often: 3, Always: 4,
+};
+
 // ---- PHQ Mood Scores ----
 export const phqHistory = [
   { week: 1, score: 8 },
