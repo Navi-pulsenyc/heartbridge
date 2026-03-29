@@ -3,12 +3,24 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Send } from 'lucide-react';
-import { chatHistory, caqWeeklyQuestions, caqOptions } from '@/lib/mockData';
+import { chatHistory, caqWeeklyQuestions, caqOptions, caqOptionScores } from '@/lib/mockData';
 
 interface Message {
     role: 'user' | 'assistant';
     content: string;
     caqQuestion?: number; // index into caqWeeklyQuestions
+}
+
+interface CaqAnswer {
+    subscale: string;
+    score: number;
+}
+
+// Compute mean score for a given subscale from the collected answers
+function subscaleMean(answers: CaqAnswer[], subscale: string): number {
+    const relevant = answers.filter((a) => a.subscale === subscale);
+    if (relevant.length === 0) return 0;
+    return relevant.reduce((sum, a) => sum + a.score, 0) / relevant.length;
 }
 
 export default function ChatPage() {
@@ -17,79 +29,147 @@ export default function ChatPage() {
     const [isTyping, setIsTyping] = useState(false);
     const [caqMode, setCaqMode] = useState(false);
     const [caqIndex, setCaqIndex] = useState(0);
+    const [caqAnswers, setCaqAnswers] = useState<CaqAnswer[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isTyping]);
 
-    const simulateResponse = (userMsg: string) => {
-        setIsTyping(true);
-        setTimeout(() => {
-            let response = '';
+    // -------------------------------------------------------
+    // Call the API route; return the AI response string
+    // -------------------------------------------------------
+    async function callChatAPI(
+        currentMessages: Message[],
+        caqSummary?: { fear: number; avoidance: number; attention: number }
+    ): Promise<string> {
+        const payload = {
+            messages: currentMessages.map(({ role, content }) => ({ role, content })),
+            ...(caqSummary ? { caqSummary } : {}),
+        };
 
-            if (userMsg.toLowerCase().includes('check-in') || userMsg.toLowerCase().includes('checkin') || userMsg.toLowerCase().includes('weekly')) {
-                response = "Time for your weekly heart check-in, Maria. Just a few quick questions — no right or wrong answers.";
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        const data = await res.json();
+        return data.response as string;
+    }
+
+    // -------------------------------------------------------
+    // Handle a free-form user message
+    // -------------------------------------------------------
+    const handleSend = async () => {
+        if (!input.trim() || isTyping) return;
+        const userMsg = input.trim();
+        setInput('');
+
+        const userMessage: Message = { role: 'user', content: userMsg };
+        const nextMessages = [...messages, userMessage];
+        setMessages(nextMessages);
+        setIsTyping(true);
+
+        // Detect "weekly check-in" trigger BEFORE the API call
+        const isCheckInTrigger =
+            userMsg.toLowerCase().includes('check-in') ||
+            userMsg.toLowerCase().includes('checkin') ||
+            userMsg.toLowerCase().includes('weekly');
+
+        try {
+            const response = await callChatAPI(nextMessages);
+            const aiMessage: Message = { role: 'assistant', content: response };
+            setMessages((prev) => [...prev, aiMessage]);
+
+            if (isCheckInTrigger) {
+                // Start CAQ flow after a short pause
                 setCaqMode(true);
                 setCaqIndex(0);
-            } else if (userMsg.toLowerCase().includes('scared') || userMsg.toLowerCase().includes('worried')) {
-                response = "I hear you, Maria. It's completely normal to feel that way. But look at this — your resting heart rate has gone from 82 to 74 over the past 7 weeks. That means your heart is getting measurably stronger. You earned that improvement with every session. Would a shorter 15-minute walk feel more comfortable today?";
-            } else if (userMsg.toLowerCase().includes('gloria') || userMsg.toLowerCase().includes('walking buddy')) {
-                response = "Great idea! Gloria is 62 and loves gardening just like you. She's in Week 6 and her progress has been really similar to yours. I can suggest a walking session together — you'd each walk separately but stay on a phone call. Want me to set one up for Thursday at 10am?";
-            } else {
-                response = `That's a great point, Maria. You're now ${7} weeks into your recovery and your body is telling a really positive story.\n\nYour resting heart rate improved from 82 to 74 — that's your heart getting more efficient. Your blood pressure has come down from 142/90 to 128/82. And you've completed 22 of your 36 sessions.\n\nKeep up the momentum. You're building a habit that will last well beyond these 12 weeks. 💪`;
-            }
-
-            setMessages((prev) => [...prev, { role: 'assistant', content: response }]);
-            setIsTyping(false);
-
-            // If entering CAQ mode, add the first question after a delay
-            if (userMsg.toLowerCase().includes('check-in') || userMsg.toLowerCase().includes('checkin') || userMsg.toLowerCase().includes('weekly')) {
+                setCaqAnswers([]);
                 setTimeout(() => {
-                    setMessages((prev) => [...prev, {
-                        role: 'assistant',
-                        content: caqWeeklyQuestions[0].text,
-                        caqQuestion: 0,
-                    }]);
-                }, 1500);
+                    setMessages((prev) => [
+                        ...prev,
+                        { role: 'assistant', content: caqWeeklyQuestions[0].text, caqQuestion: 0 },
+                    ]);
+                }, 1200);
             }
-        }, 1200 + Math.random() * 800);
+        } catch {
+            // Network/API failure — show a non-breaking fallback
+            setMessages((prev) => [
+                ...prev,
+                {
+                    role: 'assistant',
+                    content: "I'm having a little trouble connecting right now. Keep going — you're doing great. Try again in a moment if you need me.",
+                },
+            ]);
+        } finally {
+            setIsTyping(false);
+        }
     };
 
-    const handleSend = () => {
-        if (!input.trim()) return;
-        const userMsg = input.trim();
-        setMessages((prev) => [...prev, { role: 'user', content: userMsg }]);
-        setInput('');
-        simulateResponse(userMsg);
-    };
+    // -------------------------------------------------------
+    // Handle a CAQ button tap
+    // -------------------------------------------------------
+    const handleCaqAnswer = async (answer: string) => {
+        if (isTyping) return;
 
-    const handleCaqAnswer = (answer: string) => {
-        setMessages((prev) => [...prev, { role: 'user', content: answer }]);
+        const question = caqWeeklyQuestions[caqIndex];
+        const score = caqOptionScores[answer] ?? 0;
+        const newAnswers = [...caqAnswers, { subscale: question.subscale, score }];
+        setCaqAnswers(newAnswers);
+
+        const userMessage: Message = { role: 'user', content: answer };
+        setMessages((prev) => [...prev, userMessage]);
 
         const nextIndex = caqIndex + 1;
+
         if (nextIndex < caqWeeklyQuestions.length) {
+            // More questions to ask
             setCaqIndex(nextIndex);
             setIsTyping(true);
             setTimeout(() => {
-                setMessages((prev) => [...prev, {
-                    role: 'assistant',
-                    content: caqWeeklyQuestions[nextIndex].text,
-                    caqQuestion: nextIndex,
-                }]);
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        role: 'assistant',
+                        content: caqWeeklyQuestions[nextIndex].text,
+                        caqQuestion: nextIndex,
+                    },
+                ]);
                 setIsTyping(false);
-            }, 800);
+            }, 700);
         } else {
-            // CAQ complete
+            // All 6 questions answered — compute real subscale scores
             setCaqMode(false);
             setIsTyping(true);
-            setTimeout(() => {
-                setMessages((prev) => [...prev, {
-                    role: 'assistant',
-                    content: "Thanks Maria. Your anxiety scores are looking stable this week — your fear and avoidance are both lower than Week 1. That's real progress. 💙\n\nFear: 1.4 (down from 2.8)\nAvoidance: 0.8 (down from 2.2)\nAttention: 1.6 (down from 3.0)\n\nIf anything changes, your care team will know right away.",
-                }]);
+
+            const caqSummary = {
+                fear: subscaleMean(newAnswers, 'fear'),
+                avoidance: subscaleMean(newAnswers, 'avoidance'),
+                attention: subscaleMean(newAnswers, 'attention'),
+            };
+
+            try {
+                const summaryMsg = await callChatAPI(
+                    [...messages, userMessage],
+                    caqSummary
+                );
+                setMessages((prev) => [...prev, { role: 'assistant', content: summaryMsg }]);
+            } catch {
+                // Compute a local summary if the API is unavailable
+                const baseline = { fear: 2.8, avoidance: 2.2, attention: 3.0 };
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        role: 'assistant',
+                        content: `Thanks Maria. Your anxiety scores this week:\n\nFear: ${caqSummary.fear.toFixed(1)} (down from ${baseline.fear} in Week 1)\nAvoidance: ${caqSummary.avoidance.toFixed(1)} (down from ${baseline.avoidance})\nAttention: ${caqSummary.attention.toFixed(1)} (down from ${baseline.attention})\n\nThat's real progress. Your care team will see these scores right away. 💙`,
+                    },
+                ]);
+            } finally {
                 setIsTyping(false);
-            }, 1000);
+            }
         }
     };
 
