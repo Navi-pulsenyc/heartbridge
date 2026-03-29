@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { todaySession } from '@/lib/mockData';
+import { todaySession, exerciseTutorials } from '@/lib/mockData';
 
 type SessionState = 'pre' | 'active' | 'complete';
 
@@ -13,6 +13,8 @@ export default function ExercisePage() {
     const [remaining, setRemaining] = useState(todaySession.phases[0].duration * 60);
     const [phaseElapsed, setPhaseElapsed] = useState(0);
     const [heartRate, setHeartRate] = useState(78);
+    const [selectedTutorial, setSelectedTutorial] = useState(exerciseTutorials[0]);
+    const carouselRef = useRef<HTMLDivElement>(null);
 
     const phase = todaySession.phases[phaseIndex];
     const phaseDuration = phase ? phase.duration * 60 : 0; // seconds
@@ -83,6 +85,15 @@ export default function ExercisePage() {
 
     const zone = getZone();
 
+    const scrollTutorials = (direction: 'left' | 'right') => {
+        const container = carouselRef.current;
+        if (!container) return;
+        container.scrollBy({
+            left: direction === 'right' ? 220 : -220,
+            behavior: 'smooth',
+        });
+    };
+
     // Pre-session screen
     if (state === 'pre') {
         return (
@@ -95,6 +106,9 @@ export default function ExercisePage() {
                 <div className="card" style={{ marginTop: 'var(--space-md)' }}>
                     <p style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 'var(--space-sm)' }}>
                         {todaySession.totalDuration}-minute {todaySession.type.toLowerCase()}
+                    </p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 'var(--space-md)' }}>
+                        Choose a quick preview before you start. Demo mode uses guided placeholders only.
                     </p>
 
                     <div style={{
@@ -112,6 +126,161 @@ export default function ExercisePage() {
                             <p style={{ fontWeight: 600 }}>Watch: How to warm up</p>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>30 seconds</p>
                         </div>
+                    </div>
+
+                    <div style={{ marginBottom: 'var(--space-lg)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-sm)' }}>
+                            <p style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>
+                                Workout Previews
+                            </p>
+                            <div style={{ display: 'flex', gap: 6 }}>
+                                <button
+                                    type="button"
+                                    onClick={() => scrollTutorials('left')}
+                                    style={{
+                                        width: 28,
+                                        height: 28,
+                                        borderRadius: '999px',
+                                        border: '1px solid var(--border-glass)',
+                                        background: 'var(--bg-glass)',
+                                        color: 'var(--text-secondary)',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    ‹
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => scrollTutorials('right')}
+                                    style={{
+                                        width: 28,
+                                        height: 28,
+                                        borderRadius: '999px',
+                                        border: '1px solid var(--border-glass)',
+                                        background: 'var(--bg-glass)',
+                                        color: 'var(--text-secondary)',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    ›
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            ref={carouselRef}
+                            style={{
+                            display: 'flex',
+                            gap: 'var(--space-sm)',
+                            overflowX: 'auto',
+                            paddingBottom: 'var(--space-xs)',
+                            scrollSnapType: 'x mandatory',
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                        }}>
+                            {exerciseTutorials.map((tutorial) => (
+                                <button
+                                    key={tutorial.id}
+                                    onClick={() => setSelectedTutorial(tutorial)}
+                                    style={{
+                                        border: selectedTutorial.id === tutorial.id ? '1px solid var(--accent-teal)' : '1px solid var(--border-glass)',
+                                        background: 'var(--bg-glass)',
+                                        borderRadius: 'var(--radius-md)',
+                                        padding: 'var(--space-sm)',
+                                        display: 'grid',
+                                        gap: 'var(--space-sm)',
+                                        alignItems: 'stretch',
+                                        color: 'inherit',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        minWidth: 200,
+                                        flex: '0 0 auto',
+                                        scrollSnapAlign: 'start',
+                                        boxShadow: selectedTutorial.id === tutorial.id
+                                            ? '0 0 0 1px rgba(0,212,170,0.28), 0 10px 22px rgba(0,212,170,0.14)'
+                                            : 'none',
+                                        transform: selectedTutorial.id === tutorial.id ? 'translateY(-1px)' : 'translateY(0)',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    <div style={{
+                                        borderRadius: '10px',
+                                        border: '1px solid var(--border-glass)',
+                                        background: tutorial.thumbnail,
+                                        minHeight: 68,
+                                        display: 'grid',
+                                        placeItems: 'center',
+                                        fontSize: '1.2rem',
+                                    }}>
+                                        ▶
+                                    </div>
+                                    <div>
+                                        <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                                            <span style={{
+                                                padding: '2px 8px',
+                                                borderRadius: '999px',
+                                                fontSize: '0.68rem',
+                                                fontWeight: 700,
+                                                background: tutorial.badge === 'New' ? 'var(--accent-blue-dim)' : 'var(--accent-teal-dim)',
+                                                color: tutorial.badge === 'New' ? 'var(--accent-blue)' : 'var(--accent-teal)',
+                                                textTransform: 'uppercase',
+                                            }}>
+                                                {tutorial.badge}
+                                            </span>
+                                        </div>
+                                        <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tutorial.title}</p>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+                                            {tutorial.duration} · {tutorial.level} · {tutorial.coach}
+                                        </p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid var(--border-glass)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: 'var(--space-md)',
+                        marginBottom: 'var(--space-lg)',
+                    }}>
+                        <p style={{ fontWeight: 600, marginBottom: 'var(--space-xs)' }}>
+                            {selectedTutorial.title} (Preview)
+                        </p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: 'var(--space-sm)' }}>
+                            {selectedTutorial.focus}
+                        </p>
+                        <div style={{
+                            borderRadius: '10px',
+                            border: '1px solid var(--border-glass)',
+                            overflow: 'hidden',
+                            background: '#000',
+                        }}>
+                            <iframe
+                                title={selectedTutorial.title}
+                                width="100%"
+                                height="220"
+                                src={`https://www.youtube.com/embed/${selectedTutorial.videoId}?rel=0&modestbranding=1`}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                allowFullScreen
+                                style={{ border: 0, display: 'block' }}
+                            />
+                        </div>
+                        <a
+                            href={`https://www.youtube.com/watch?v=${selectedTutorial.videoId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                                display: 'inline-block',
+                                marginTop: 'var(--space-sm)',
+                                fontSize: '0.78rem',
+                                color: 'var(--accent-teal)',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            If preview is blocked, open on YouTube ↗
+                        </a>
                     </div>
 
                     <p style={{ fontWeight: 700, marginBottom: 'var(--space-md)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>

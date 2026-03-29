@@ -128,6 +128,43 @@ export const todaySession = {
   ],
 };
 
+// ---- Exercise Demo Tutorials (YouTube embeds for demo) ----
+export const exerciseTutorials = [
+  {
+    id: 't1',
+    title: '2-Minute Warm-Up Flow',
+    duration: '2:00',
+    level: 'Beginner',
+    badge: 'Recommended',
+    coach: 'Coach Elena',
+    videoId: 'OcPs3x1vX1A',
+    thumbnail: 'url("https://i.ytimg.com/vi/OcPs3x1vX1A/hqdefault.jpg") center/cover no-repeat',
+    focus: 'Prepare joints and breathing before your walk',
+  },
+  {
+    id: 't2',
+    title: 'Walking Form Basics',
+    duration: '1:30',
+    level: 'All levels',
+    badge: 'New',
+    coach: 'Coach Marco',
+    videoId: 'gC_L9qAHVJ8',
+    thumbnail: 'url("https://i.ytimg.com/vi/gC_L9qAHVJ8/hqdefault.jpg") center/cover no-repeat',
+    focus: 'Posture, cadence, and arm swing cues',
+  },
+  {
+    id: 't3',
+    title: 'Cool-Down + Stretch',
+    duration: '2:15',
+    level: 'Beginner',
+    badge: 'Recommended',
+    coach: 'Coach Priya',
+    videoId: '2L2lnxIcNmo',
+    thumbnail: 'url("https://i.ytimg.com/vi/2L2lnxIcNmo/hqdefault.jpg") center/cover no-repeat',
+    focus: 'Bring heart rate down and release tension',
+  },
+];
+
 // ---- Exercise Library ----
 export const exerciseLibrary = [
   { id: 'ex1', name: 'Walking (moderate)', icon: '🚶', duration: '15-25 min', frequency: '3-4x per week' },
