@@ -47,6 +47,23 @@ export default function ClinicianPage() {
 
                 {/* Key Metrics */}
                 <div className="metrics-grid">
+                    <div className="metric-card" style={{
+                        border: selected.dropoutRisk > 50 ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--border-glass)',
+                        background: selected.dropoutRisk > 50 ? 'rgba(239,68,68,0.05)' : 'var(--bg-glass)'
+                    }}>
+                        <div className="metric-label" style={{ color: selected.dropoutRisk > 50 ? 'var(--status-red)' : 'var(--text-secondary)' }}>
+                            30-Day Dropout Risk
+                        </div>
+                        <div className="metric-value" style={{ color: selected.dropoutRisk > 50 ? 'var(--status-red)' : selected.dropoutRisk > 30 ? 'var(--status-yellow)' : 'var(--status-green)' }}>
+                            {selected.dropoutRisk}%
+                        </div>
+                        <div className="progress-bar" style={{ marginTop: 6 }}>
+                            <div className="progress-bar-fill" style={{
+                                width: `${selected.dropoutRisk}%`,
+                                background: selected.dropoutRisk > 50 ? 'var(--status-red)' : selected.dropoutRisk > 30 ? 'var(--status-yellow)' : 'var(--status-green)'
+                            }} />
+                        </div>
+                    </div>
                     <div className="metric-card">
                         <div className="metric-label">Sessions</div>
                         <div className="metric-value">{selected.sessionsCompleted}/{selected.totalSessions}</div>
@@ -62,7 +79,7 @@ export default function ClinicianPage() {
                         </div>
                     </div>
                     <div className="metric-card">
-                        <div className="metric-label">CAQ Fear</div>
+                        <div className="metric-label">Anxiety Score</div>
                         <div className="metric-value" style={{ color: selected.caqFear > 2.0 ? 'var(--status-yellow)' : 'var(--status-green)' }}>
                             {selected.caqFear}
                         </div>
@@ -74,15 +91,9 @@ export default function ClinicianPage() {
                         </div>
                     </div>
                     <div className="metric-card">
-                        <div className="metric-label">Med Adherence</div>
+                        <div className="metric-label">Meds Taken</div>
                         <div className="metric-value" style={{ color: selected.medAdherence < 80 ? 'var(--status-red)' : 'var(--status-green)' }}>
                             {selected.medAdherence}%
-                        </div>
-                    </div>
-                    <div className="metric-card">
-                        <div className="metric-label">CAQ Avoidance</div>
-                        <div className="metric-value" style={{ color: selected.caqAvoidance > 2.0 ? 'var(--status-yellow)' : 'var(--status-green)' }}>
-                            {selected.caqAvoidance}
                         </div>
                     </div>
                 </div>
@@ -104,22 +115,20 @@ export default function ClinicianPage() {
                         </div>
 
                         <div className="card">
-                            <p className="card-title" style={{ marginBottom: 'var(--space-md)' }}>CAQ Anxiety Subscales</p>
+                            <p className="card-title" style={{ marginBottom: 'var(--space-md)' }}>Anxiety Trend</p>
                             <ResponsiveContainer width="100%" height={180}>
                                 <LineChart data={caqHistory}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
                                     <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#64748B' }} tickFormatter={(w) => `W${w}`} />
                                     <YAxis tick={{ fontSize: 11, fill: '#64748B' }} domain={[0, 4]} />
                                     <Tooltip contentStyle={{ background: '#111D35', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
-                                    <Line type="monotone" dataKey="fear" stroke="#FF6B6B" strokeWidth={2} dot={{ r: 3 }} name="Fear" />
-                                    <Line type="monotone" dataKey="avoidance" stroke="#F59E0B" strokeWidth={2} dot={{ r: 3 }} name="Avoidance" />
-                                    <Line type="monotone" dataKey="attention" stroke="#A78BFA" strokeWidth={2} dot={{ r: 3 }} name="Attention" />
+                                    <Line type="monotone" dataKey="total" stroke="#FF6B6B" strokeWidth={2} dot={{ r: 3 }} name="Anxiety Score" />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
 
                         <div className="card">
-                            <p className="card-title" style={{ marginBottom: 'var(--space-md)' }}>Medication Adherence</p>
+                            <p className="card-title" style={{ marginBottom: 'var(--space-md)' }}>Meds Taken Routine</p>
                             {medications.map((med) => (
                                 <div key={med.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                     <span style={{ fontSize: '0.85rem' }}>{med.name} {med.dose}</span>
@@ -175,7 +184,8 @@ export default function ClinicianPage() {
                             <th style={{ padding: 'var(--space-md)', fontWeight: 600, color: 'var(--text-secondary)' }}>Week</th>
                             <th style={{ padding: 'var(--space-md)', fontWeight: 600, color: 'var(--text-secondary)' }}>Sessions</th>
                             <th style={{ padding: 'var(--space-md)', fontWeight: 600, color: 'var(--text-secondary)' }}>Status</th>
-                            <th style={{ padding: 'var(--space-md)', fontWeight: 600, color: 'var(--text-secondary)' }}>CAQ Trend</th>
+                            <th style={{ padding: 'var(--space-md)', fontWeight: 600, color: 'var(--text-secondary)' }}>Risk Score</th>
+                            <th style={{ padding: 'var(--space-md)', fontWeight: 600, color: 'var(--text-secondary)' }}>Anxiety Trend</th>
                             <th style={{ padding: 'var(--space-md)', fontWeight: 600, color: 'var(--text-secondary)' }}>Last Active</th>
                         </tr>
                     </thead>
@@ -207,6 +217,9 @@ export default function ClinicianPage() {
                                     <td style={{ padding: 'var(--space-md)' }}>{p.sessionsCompleted}/{p.totalSessions}</td>
                                     <td style={{ padding: 'var(--space-md)' }}>
                                         <span className={`badge badge-${p.status}`}>{p.status.toUpperCase()}</span>
+                                    </td>
+                                    <td style={{ padding: 'var(--space-md)', fontWeight: 700, color: p.dropoutRisk > 50 ? 'var(--status-red)' : p.dropoutRisk > 30 ? 'var(--status-yellow)' : 'var(--text-primary)' }}>
+                                        {p.dropoutRisk}%
                                     </td>
                                     <td style={{ padding: 'var(--space-md)' }}>
                                         <span style={{ color: p.caqAvoidance > 2.0 || p.caqFear > 2.5 ? 'var(--status-yellow)' : 'var(--text-muted)' }}>

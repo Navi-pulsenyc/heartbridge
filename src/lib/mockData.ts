@@ -131,39 +131,39 @@ export const todaySession = {
 
 // ---- Exercise Demo Tutorials (YouTube embeds for demo) ----
 export const exerciseTutorials = [
-  {
-    id: 't1',
-    title: '2-Minute Warm-Up Flow',
-    duration: '2:00',
-    level: 'Beginner',
-    badge: 'Recommended',
-    coach: 'Coach Elena',
-    videoId: 'OcPs3x1vX1A',
-    thumbnail: 'url("https://i.ytimg.com/vi/OcPs3x1vX1A/hqdefault.jpg") center/cover no-repeat',
-    focus: 'Prepare joints and breathing before your walk',
-  },
-  {
-    id: 't2',
-    title: 'Walking Form Basics',
-    duration: '1:30',
-    level: 'All levels',
-    badge: 'New',
-    coach: 'Coach Marco',
-    videoId: 'gC_L9qAHVJ8',
-    thumbnail: 'url("https://i.ytimg.com/vi/gC_L9qAHVJ8/hqdefault.jpg") center/cover no-repeat',
-    focus: 'Posture, cadence, and arm swing cues',
-  },
-  {
-    id: 't3',
-    title: 'Cool-Down + Stretch',
-    duration: '2:15',
-    level: 'Beginner',
-    badge: 'Recommended',
-    coach: 'Coach Priya',
-    videoId: '2L2lnxIcNmo',
-    thumbnail: 'url("https://i.ytimg.com/vi/2L2lnxIcNmo/hqdefault.jpg") center/cover no-repeat',
-    focus: 'Bring heart rate down and release tension',
-  },
+    {
+        id: 't1',
+        title: '2-Minute Warm-Up Flow',
+        duration: '2:00',
+        level: 'Beginner',
+        badge: 'Recommended',
+        coach: 'Coach Elena',
+        videoId: 'OcPs3x1vX1A',
+        thumbnail: 'url("https://i.ytimg.com/vi/OcPs3x1vX1A/hqdefault.jpg") center/cover no-repeat',
+        focus: 'Prepare joints and breathing before your walk',
+    },
+    {
+        id: 't2',
+        title: 'Walking Form Basics',
+        duration: '1:30',
+        level: 'All levels',
+        badge: 'New',
+        coach: 'Coach Marco',
+        videoId: 'gC_L9qAHVJ8',
+        thumbnail: 'url("https://i.ytimg.com/vi/gC_L9qAHVJ8/hqdefault.jpg") center/cover no-repeat',
+        focus: 'Posture, cadence, and arm swing cues',
+    },
+    {
+        id: 't3',
+        title: 'Cool-Down + Stretch',
+        duration: '2:15',
+        level: 'Beginner',
+        badge: 'Recommended',
+        coach: 'Coach Priya',
+        videoId: '2L2lnxIcNmo',
+        thumbnail: 'url("https://i.ytimg.com/vi/2L2lnxIcNmo/hqdefault.jpg") center/cover no-repeat',
+        focus: 'Bring heart rate down and release tension',
+    },
 ];
 
 // ---- Exercise Library ----
@@ -211,7 +211,7 @@ export const caqWeeklyQuestions = [
 export const caqOptions = ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'];
 
 export const caqOptionScores: Record<string, number> = {
-  Never: 0, Rarely: 1, Sometimes: 2, Often: 3, Always: 4,
+    Never: 0, Rarely: 1, Sometimes: 2, Often: 3, Always: 4,
 };
 
 // ---- PHQ Mood Scores ----
@@ -348,7 +348,7 @@ export const ESCALATION = {
 export const chatHistory = [
     {
         role: 'assistant' as const,
-        content: "Good morning, Maria! Ready for Day 24? You've been doing amazing — your resting heart rate went from 82 to 74 since Week 1. That's your heart getting more efficient. Today's session is a 20-minute moderate walk. How are you feeling?",
+        content: "Good morning, Maria! Today's session is a 20-minute walk — I'll watch your heart rate the whole time.\n\nHere is your **Diet Plan for today**:\n• Breakfast: Oatmeal with berries\n• Lunch: Grilled chicken salad (light dressing)\n• Dinner: Baked salmon with roasted vegetables\n*Remember to keep your sodium under 1500mg today!*\n\nAnd one more thing — last week you mentioned you've been avoiding the stairs at work because you're worried about your heart. That's exactly the kind of thing worth telling Nurse Sarah about at your call tomorrow. She can help you figure out what's safe. Ready to start your walk?",
     },
     {
         role: 'user' as const,
@@ -378,20 +378,21 @@ export interface ClinicianPatient {
     caqAvoidance: number;
     phqScore: number;
     medAdherence: number;
+    dropoutRisk: number;
     lastAlert?: string;
 }
 
 export const clinicianPatients: ClinicianPatient[] = [
-    { id: 'p001', name: 'Maria Garcia', age: 58, week: 7, avatar: '👩🏽', status: 'green', sessionsCompleted: 22, totalSessions: 36, restingHR: 74, restingHRTrend: '82→74', caqFear: 1.4, caqAvoidance: 0.8, phqScore: 4, medAdherence: 95 },
-    { id: 'p002', name: 'Robert Chen', age: 65, week: 5, avatar: '👨🏻', status: 'green', sessionsCompleted: 14, totalSessions: 36, restingHR: 78, restingHRTrend: '86→78', caqFear: 1.2, caqAvoidance: 0.6, phqScore: 3, medAdherence: 100 },
-    { id: 'p003', name: 'Patricia Williams', age: 71, week: 9, avatar: '👩🏿', status: 'green', sessionsCompleted: 26, totalSessions: 36, restingHR: 72, restingHRTrend: '80→72', caqFear: 0.8, caqAvoidance: 0.4, phqScore: 2, medAdherence: 98 },
-    { id: 'p004', name: 'James Thompson', age: 52, week: 3, avatar: '👨🏾', status: 'green', sessionsCompleted: 8, totalSessions: 36, restingHR: 80, restingHRTrend: '88→80', caqFear: 2.0, caqAvoidance: 1.4, phqScore: 5, medAdherence: 92 },
-    { id: 'p005', name: 'Susan Kim', age: 63, week: 11, avatar: '👩🏻', status: 'green', sessionsCompleted: 32, totalSessions: 36, restingHR: 68, restingHRTrend: '76→68', caqFear: 0.6, caqAvoidance: 0.2, phqScore: 1, medAdherence: 100 },
-    { id: 'p006', name: 'Michael Brown', age: 59, week: 6, avatar: '👨🏽', status: 'green', sessionsCompleted: 17, totalSessions: 36, restingHR: 76, restingHRTrend: '84→76', caqFear: 1.6, caqAvoidance: 1.0, phqScore: 4, medAdherence: 88 },
-    { id: 'p007', name: 'Helen Davis', age: 68, week: 4, avatar: '👩🏼', status: 'green', sessionsCompleted: 11, totalSessions: 36, restingHR: 79, restingHRTrend: '85→79', caqFear: 1.8, caqAvoidance: 1.2, phqScore: 5, medAdherence: 94 },
-    { id: 'p008', name: 'David Martinez', age: 55, week: 8, avatar: '👨🏻', status: 'green', sessionsCompleted: 23, totalSessions: 36, restingHR: 73, restingHRTrend: '82→73', caqFear: 1.0, caqAvoidance: 0.6, phqScore: 3, medAdherence: 96 },
-    { id: 'p009', name: 'Dorothy Wilson', age: 74, week: 6, avatar: '👩🏽', status: 'yellow', sessionsCompleted: 14, totalSessions: 36, restingHR: 80, restingHRTrend: '84→80', caqFear: 2.4, caqAvoidance: 1.8, phqScore: 6, medAdherence: 78, lastAlert: 'Missed 2 sessions this week' },
-    { id: 'p010', name: 'Richard Taylor', age: 61, week: 4, avatar: '👨🏿', status: 'yellow', sessionsCompleted: 8, totalSessions: 36, restingHR: 82, restingHRTrend: '86→82', caqFear: 2.6, caqAvoidance: 2.0, phqScore: 7, medAdherence: 72, lastAlert: 'Med adherence dropped below 80%' },
-    { id: 'p011', name: 'Barbara Anderson', age: 66, week: 7, avatar: '👩🏻', status: 'yellow', sessionsCompleted: 16, totalSessions: 36, restingHR: 81, restingHRTrend: '85→81', caqFear: 2.2, caqAvoidance: 2.2, phqScore: 8, medAdherence: 82, lastAlert: 'CAQ avoidance score spiked +1.2' },
-    { id: 'p012', name: 'Thomas Jackson', age: 57, week: 5, avatar: '👨🏼', status: 'red', sessionsCompleted: 6, totalSessions: 36, restingHR: 86, restingHRTrend: '90→86', caqFear: 3.2, caqAvoidance: 2.8, phqScore: 12, medAdherence: 60, lastAlert: 'No activity for 5 days, PHQ score critical' },
+    { id: 'p001', name: 'Maria Garcia', age: 58, week: 7, avatar: '👩🏽', status: 'green', sessionsCompleted: 22, totalSessions: 36, restingHR: 74, restingHRTrend: '82→74', caqFear: 1.4, caqAvoidance: 0.8, phqScore: 4, medAdherence: 95, dropoutRisk: 12 },
+    { id: 'p002', name: 'Robert Chen', age: 65, week: 5, avatar: '👨🏻', status: 'green', sessionsCompleted: 14, totalSessions: 36, restingHR: 78, restingHRTrend: '86→78', caqFear: 1.2, caqAvoidance: 0.6, phqScore: 3, medAdherence: 100, dropoutRisk: 8 },
+    { id: 'p003', name: 'Patricia Williams', age: 71, week: 9, avatar: '👩🏿', status: 'green', sessionsCompleted: 26, totalSessions: 36, restingHR: 72, restingHRTrend: '80→72', caqFear: 0.8, caqAvoidance: 0.4, phqScore: 2, medAdherence: 98, dropoutRisk: 5 },
+    { id: 'p004', name: 'James Thompson', age: 52, week: 3, avatar: '👨🏾', status: 'green', sessionsCompleted: 8, totalSessions: 36, restingHR: 80, restingHRTrend: '88→80', caqFear: 2.0, caqAvoidance: 1.4, phqScore: 5, medAdherence: 92, dropoutRisk: 18 },
+    { id: 'p005', name: 'Susan Kim', age: 63, week: 11, avatar: '👩🏻', status: 'green', sessionsCompleted: 32, totalSessions: 36, restingHR: 68, restingHRTrend: '76→68', caqFear: 0.6, caqAvoidance: 0.2, phqScore: 1, medAdherence: 100, dropoutRisk: 2 },
+    { id: 'p006', name: 'Michael Brown', age: 59, week: 6, avatar: '👨🏽', status: 'green', sessionsCompleted: 17, totalSessions: 36, restingHR: 76, restingHRTrend: '84→76', caqFear: 1.6, caqAvoidance: 1.0, phqScore: 4, medAdherence: 88, dropoutRisk: 24 },
+    { id: 'p007', name: 'Helen Davis', age: 68, week: 4, avatar: '👩🏼', status: 'green', sessionsCompleted: 11, totalSessions: 36, restingHR: 79, restingHRTrend: '85→79', caqFear: 1.8, caqAvoidance: 1.2, phqScore: 5, medAdherence: 94, dropoutRisk: 15 },
+    { id: 'p008', name: 'David Martinez', age: 55, week: 8, avatar: '👨🏻', status: 'green', sessionsCompleted: 23, totalSessions: 36, restingHR: 73, restingHRTrend: '82→73', caqFear: 1.0, caqAvoidance: 0.6, phqScore: 3, medAdherence: 96, dropoutRisk: 9 },
+    { id: 'p009', name: 'Dorothy Wilson', age: 74, week: 6, avatar: '👩🏽', status: 'yellow', sessionsCompleted: 14, totalSessions: 36, restingHR: 80, restingHRTrend: '84→80', caqFear: 2.4, caqAvoidance: 1.8, phqScore: 6, medAdherence: 78, dropoutRisk: 42, lastAlert: 'Missed 2 sessions this week' },
+    { id: 'p010', name: 'Richard Taylor', age: 61, week: 4, avatar: '👨🏿', status: 'yellow', sessionsCompleted: 8, totalSessions: 36, restingHR: 82, restingHRTrend: '86→82', caqFear: 2.6, caqAvoidance: 2.0, phqScore: 7, medAdherence: 72, dropoutRisk: 55, lastAlert: 'Med adherence dropped below 80%' },
+    { id: 'p011', name: 'Barbara Anderson', age: 66, week: 7, avatar: '👩🏻', status: 'yellow', sessionsCompleted: 16, totalSessions: 36, restingHR: 81, restingHRTrend: '85→81', caqFear: 2.2, caqAvoidance: 2.2, phqScore: 8, medAdherence: 82, dropoutRisk: 38, lastAlert: 'CAQ avoidance score spiked +1.2' },
+    { id: 'p012', name: 'Thomas Jackson', age: 57, week: 5, avatar: '👨🏼', status: 'red', sessionsCompleted: 6, totalSessions: 36, restingHR: 86, restingHRTrend: '90→86', caqFear: 3.2, caqAvoidance: 2.8, phqScore: 12, medAdherence: 60, dropoutRisk: 87, lastAlert: 'No activity for 5 days, PHQ score critical' },
 ];

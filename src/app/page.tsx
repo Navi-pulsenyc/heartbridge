@@ -87,9 +87,43 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* AI Companion Card (Moved to front per user request) */}
+      <Link href="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <div className="card stagger-1" style={{ animationFillMode: 'forwards', background: 'linear-gradient(145deg, rgba(0,212,170,0.1) 0%, rgba(0,0,0,0) 100%)', border: '1px solid rgba(0,212,170,0.3)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+            <div style={{ background: 'var(--accent-teal-dim)', color: 'var(--accent-teal)', padding: '12px', borderRadius: '50%' }}>
+              <MessageCircle size={28} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>HeartBridge AI Coach</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 2 }}>Tap to chat, log symptoms, or ask questions 24/7.</p>
+            </div>
+            <ChevronRight size={20} color="var(--accent-teal)" />
+          </div>
+        </div>
+      </Link>
+
+      {/* Rewards & Incentives */}
+      <div className="card stagger-2" style={{ animationFillMode: 'forwards' }}>
+        <div className="card-header">
+          <span className="card-title">🎁 Next Reward</span>
+          <span className="badge badge-yellow" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#FBBF24' }}>450 / 500 pts</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginBottom: 'var(--space-sm)' }}>
+          <div style={{ fontSize: '2rem' }}>👕</div>
+          <div>
+            <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>Nike x HeartBridge Dri-FIT Tee</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Complete 2 more sessions to earn!</p>
+          </div>
+        </div>
+        <div className="progress-bar" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          <div className="progress-bar-fill" style={{ width: '90%', background: 'linear-gradient(90deg, #F59E0B, #FBBF24)' }} />
+        </div>
+      </div>
+
       {/* Today's Exercise */}
       <Link href="/exercise" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <div className="card stagger-2" style={{ animationFillMode: 'forwards' }}>
+        <div className="card stagger-3" style={{ animationFillMode: 'forwards' }}>
           <div className="card-header">
             <span className="card-title">🏃 Today&apos;s Session</span>
             <span className="badge badge-teal">Day {todaySession.day}</span>
@@ -108,7 +142,7 @@ export default function HomePage() {
 
       {/* Medications */}
       <Link href="/medications" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <div className="card stagger-3" style={{ animationFillMode: 'forwards' }}>
+        <div className="card stagger-4" style={{ animationFillMode: 'forwards' }}>
           <div className="card-header">
             <span className="card-title">💊 Medications</span>
             <span className="card-link">View all <ChevronRight size={14} /></span>
@@ -125,7 +159,7 @@ export default function HomePage() {
       </Link>
 
       {/* Log My Numbers */}
-      <div className="card stagger-4" style={{ animationFillMode: 'forwards' }}>
+      <div className="card stagger-5" style={{ animationFillMode: 'forwards' }}>
         <div className="card-header">
           <span className="card-title">📋 Log My Numbers</span>
         </div>
@@ -152,7 +186,7 @@ export default function HomePage() {
       </div>
 
       {/* Care Team */}
-      <div className="card stagger-5" style={{ animationFillMode: 'forwards' }}>
+      <div className="card stagger-6" style={{ animationFillMode: 'forwards' }}>
         <div className="card-header">
           <span className="card-title">👩‍⚕️ Care Team</span>
         </div>
@@ -179,25 +213,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* AI Chat FAB */}
-      <Link href="/chat" style={{
-        position: 'fixed',
-        bottom: 80,
-        right: 'calc(50% - 195px)',
-        width: 56,
-        height: 56,
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, var(--accent-teal), #00B894)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: 'var(--shadow-glow-teal)',
-        zIndex: 50,
-        color: '#0A1628',
-        textDecoration: 'none',
-      }}>
-        <MessageCircle size={24} />
-      </Link>
     </div>
   );
 }
