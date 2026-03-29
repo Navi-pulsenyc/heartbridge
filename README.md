@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HeartBridge AI
 
-## Getting Started
+A comprehensive cardiac rehabilitation companion that supports post-operative heart patients through their recovery journey. HeartBridge provides AI-powered coaching, guided exercise sessions with real-time heart rate monitoring, medication adherence tracking, daily vitals logging, emotional support through conversational AI, peer matching, care team coordination, and an emergency response system — all designed to improve outcomes for patients in 12-week cardiac rehab programs.
 
-First, run the development server:
+**Live Demo:** https://heartbridge-anc7.vercel.app/
+
+## Team Members
+
+- Lucas Yao
+- Fergie Yang
+- Sahil Parupudi
+- Khyati
+- Muhammad
+
+## Run / Deploy Instructions
+
+### Prerequisites
+
+- Node.js 18+
+- npm, yarn, pnpm, or bun
+
+### Local Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.local.example .env.local
+# Add your ANTHROPIC_API_KEY to .env.local (optional — the app works without it using fallback responses)
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app is deployed on [Vercel](https://vercel.com). To deploy your own instance:
 
-## Learn More
+1. Push the repo to GitHub.
+2. Import the project in Vercel.
+3. Set the `ANTHROPIC_API_KEY` environment variable in Vercel's project settings.
+4. Deploy.
 
-To learn more about Next.js, take a look at the following resources:
+## Third-Party APIs, Models, and Datasets
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Category | Name | Usage |
+|----------|------|-------|
+| **AI Model** | [Claude (Anthropic)](https://www.anthropic.com/) — `claude-opus-4-6` | Powers the AI coach for personalized patient conversations, emotional support, and weekly cardiac anxiety check-in summaries |
+| **Framework** | [Next.js](https://nextjs.org/) 16 | React framework for the full-stack web app |
+| **Charts** | [Recharts](https://recharts.org/) | Visualizes vitals trends, anxiety scores, and clinician dashboards |
+| **Icons** | [Lucide React](https://lucide.dev/) | UI icon library |
+| **Videos** | [YouTube](https://youtube.com) (embedded) | Exercise tutorial videos for warmup, walking form, and cool-down stretches |
+| **Dataset** | None (all patient data is locally defined) | Mock patient profiles, vitals history, medications, and care team data are defined in `src/lib/mockData.ts` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## What Is Mocked vs. Live in the Demo
 
-## Deploy on Vercel
+### Live
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Claude AI Chat** — When an `ANTHROPIC_API_KEY` is configured, chat messages are sent to the Anthropic API and the AI generates real, personalized responses based on patient context (vitals, medications, anxiety scores, care team info).
+- **YouTube Video Embeds** — Exercise tutorial videos are real YouTube videos embedded in the exercise page.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Mocked
+
+- **Patient data** — All vitals, medications, session history, anxiety/mood scores, and patient profiles are hardcoded demo data (no database or real patient records).
+- **Exercise tracking** — Heart rate during guided sessions is simulated, not read from a wearable device.
+- **Medication adherence** — UI allows marking medications as taken, but changes are not persisted.
+- **Vitals logging** — Forms accept input but do not save to a backend.
+- **Peer matching & community** — Peer profiles and messaging are static demo data.
+- **Family sharing** — Family circle and privacy controls use mock data.
+- **Care team & hospitals** — Care team schedules and hospital directory are hardcoded.
+- **Emergency response** — SOS escalation is a timed demo (30s → 45s → 75s), not connected to real emergency services.
+- **Clinician dashboard** — Patient list and risk scores are hardcoded; no real clinical data integration.
+- **AI fallback** — If no API key is set or the API call fails, the chat returns pattern-matched hardcoded responses so the demo still works.
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
