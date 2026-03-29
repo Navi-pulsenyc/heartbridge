@@ -19,17 +19,21 @@ export default function BottomNav() {
     if (hiddenPaths.some(p => pathname.startsWith(p))) return null;
 
     return (
-        <nav className="bottom-nav">
-            {navItems.map(({ href, label, icon: Icon }) => (
-                <Link
-                    key={href}
-                    href={href}
-                    className={`nav-item ${pathname === href ? 'active' : ''}`}
-                >
-                    <Icon />
-                    {label}
-                </Link>
-            ))}
+        <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
+            {navItems.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href;
+                return (
+                    <Link
+                        key={href}
+                        href={href}
+                        className={`nav-item ${isActive ? 'active' : ''}`}
+                        aria-current={isActive ? 'page' : undefined}
+                    >
+                        <Icon aria-hidden size={28} strokeWidth={2} />
+                        <span>{label}</span>
+                    </Link>
+                );
+            })}
         </nav>
     );
 }

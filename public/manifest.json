@@ -4,8 +4,8 @@
     "description": "Cardiac rehabilitation companion — guided exercise, AI support, emergency response",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#0A1628",
-    "theme_color": "#00D4AA",
+    "background_color": "#f0faf4",
+    "theme_color": "#16a34a",
     "orientation": "portrait",
     "icons": [
         {
