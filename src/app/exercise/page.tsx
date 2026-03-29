@@ -10,7 +10,8 @@ type SessionState = 'pre' | 'active' | 'complete';
 export default function ExercisePage() {
     const [state, setState] = useState<SessionState>('pre');
     const [phaseIndex, setPhaseIndex] = useState(0);
-    const [elapsed, setElapsed] = useState(0);
+    const [remaining, setRemaining] = useState(todaySession.phases[0].duration * 60);
+    const [phaseElapsed, setPhaseElapsed] = useState(0);
     const [heartRate, setHeartRate] = useState(78);
 
     const phase = todaySession.phases[phaseIndex];
@@ -34,27 +35,35 @@ export default function ExercisePage() {
         return () => clearInterval(interval);
     }, [state, phase?.name]);
 
-    // Timer
+    // Countdown timer with automatic phase transitions.
     useEffect(() => {
         if (state !== 'active') return;
+
+        if (!phase) {
+            setState('complete');
+            return;
+        }
+
         const interval = setInterval(() => {
-            setElapsed((prev) => {
-                const next = prev + 1;
-                if (next >= phaseDuration) {
-                    // Move to next phase
+            setRemaining((prev) => {
+                if (prev <= 1) {
                     if (phaseIndex < todaySession.phases.length - 1) {
-                        setPhaseIndex((p) => p + 1);
-                        return 0;
+                        const nextPhaseIndex = phaseIndex + 1;
+                        setPhaseIndex(nextPhaseIndex);
+                        setPhaseElapsed(0);
+                        return todaySession.phases[nextPhaseIndex].duration * 60;
                     } else {
                         setState('complete');
-                        return prev;
+                        return 0;
                     }
                 }
-                return next;
+                return prev - 1;
             });
+            setPhaseElapsed((prev) => prev + 1);
         }, 1000);
+
         return () => clearInterval(interval);
-    }, [state, phaseDuration, phaseIndex]);
+    }, [state, phase, phaseIndex]);
 
     const formatTime = useCallback((s: number) => {
         const m = Math.floor(s / 60);
@@ -63,14 +72,13 @@ export default function ExercisePage() {
     }, []);
 
     const getZone = () => {
-        if (heartRate < 90) return { label: '🟢 Safe zone', className: 'zone-safe' };
-        if (heartRate >= todaySession.targetHRMin && heartRate <= todaySession.targetHRMax)
-            return { label: '🟢 Target zone', className: 'zone-target' };
-        if (heartRate > todaySession.targetHRMax && heartRate <= 140)
+        if (heartRate <= todaySession.targetHRMax) {
+            return { label: '🟢 Safe', className: 'zone-safe' };
+        }
+        if (heartRate <= 140) {
             return { label: '🟡 Elevated', className: 'zone-elevated' };
-        if (heartRate > 140)
-            return { label: '🔴 Too high — slow down', className: 'zone-danger' };
-        return { label: '🟢 Safe zone', className: 'zone-safe' };
+        }
+        return { label: '🔴 Stop', className: 'zone-danger' };
     };
 
     const zone = getZone();
@@ -145,16 +153,6 @@ export default function ExercisePage() {
                 <button className="btn btn-primary btn-full" onClick={() => setState('active')}>
                     I&apos;m ready — start ▶
                 </button>
-
-                <Link href="/exercise/library" style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    color: 'var(--accent-teal)',
-                    marginTop: 'var(--space-md)',
-                    fontSize: '0.9rem',
-                }}>
-                    Show me the stretches
-                </Link>
             </div>
         );
     }
@@ -222,7 +220,7 @@ export default function ExercisePage() {
 
             {/* Timer */}
             <div className="timer-display">
-                {formatTime(elapsed)} / {formatTime(phaseDuration)}
+                {formatTime(remaining)}
             </div>
 
             {/* Heart Rate */}
@@ -238,6 +236,9 @@ export default function ExercisePage() {
             <div className="card" style={{ textAlign: 'left', marginTop: 'var(--space-lg)' }}>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.7 }}>
                     &ldquo;{phase.instruction}&rdquo;
+                </p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: 'var(--space-sm)' }}>
+                    {formatTime(phaseElapsed)} elapsed of {formatTime(phaseDuration)} in this phase
                 </p>
             </div>
 
