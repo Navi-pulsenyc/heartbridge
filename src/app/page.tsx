@@ -170,7 +170,7 @@ export default function HomePage() {
               <MessageCircle size={28} />
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>HeartBridge AI Coach</p>
+              <p style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>Rosa AI</p>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 2 }}>Tap to chat, log symptoms, or ask questions 24/7.</p>
             </div>
             <ChevronRight size={20} color="var(--accent-teal)" />
