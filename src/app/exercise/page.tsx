@@ -1,17 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { todaySession } from '@/lib/mockData';
+import { todaySession, exerciseTutorials } from '@/lib/mockData';
 
 type SessionState = 'pre' | 'active' | 'complete';
 
 export default function ExercisePage() {
     const [state, setState] = useState<SessionState>('pre');
     const [phaseIndex, setPhaseIndex] = useState(0);
-    const [elapsed, setElapsed] = useState(0);
+    const [remaining, setRemaining] = useState(todaySession.phases[0].duration * 60);
+    const [phaseElapsed, setPhaseElapsed] = useState(0);
     const [heartRate, setHeartRate] = useState(78);
+    const [selectedTutorial, setSelectedTutorial] = useState(exerciseTutorials[0]);
+    const carouselRef = useRef<HTMLDivElement>(null);
 
     const phase = todaySession.phases[phaseIndex];
     const phaseDuration = phase ? phase.duration * 60 : 0; // seconds
@@ -34,27 +37,35 @@ export default function ExercisePage() {
         return () => clearInterval(interval);
     }, [state, phase?.name]);
 
-    // Timer
+    // Countdown timer with automatic phase transitions.
     useEffect(() => {
         if (state !== 'active') return;
+
+        if (!phase) {
+            setState('complete');
+            return;
+        }
+
         const interval = setInterval(() => {
-            setElapsed((prev) => {
-                const next = prev + 1;
-                if (next >= phaseDuration) {
-                    // Move to next phase
+            setRemaining((prev) => {
+                if (prev <= 1) {
                     if (phaseIndex < todaySession.phases.length - 1) {
-                        setPhaseIndex((p) => p + 1);
-                        return 0;
+                        const nextPhaseIndex = phaseIndex + 1;
+                        setPhaseIndex(nextPhaseIndex);
+                        setPhaseElapsed(0);
+                        return todaySession.phases[nextPhaseIndex].duration * 60;
                     } else {
                         setState('complete');
-                        return prev;
+                        return 0;
                     }
                 }
-                return next;
+                return prev - 1;
             });
+            setPhaseElapsed((prev) => prev + 1);
         }, 1000);
+
         return () => clearInterval(interval);
-    }, [state, phaseDuration, phaseIndex]);
+    }, [state, phase, phaseIndex]);
 
     const formatTime = useCallback((s: number) => {
         const m = Math.floor(s / 60);
@@ -63,17 +74,25 @@ export default function ExercisePage() {
     }, []);
 
     const getZone = () => {
-        if (heartRate < 90) return { label: '🟢 Safe zone', className: 'zone-safe' };
-        if (heartRate >= todaySession.targetHRMin && heartRate <= todaySession.targetHRMax)
-            return { label: '🟢 Target zone', className: 'zone-target' };
-        if (heartRate > todaySession.targetHRMax && heartRate <= 140)
+        if (heartRate <= todaySession.targetHRMax) {
+            return { label: '🟢 Safe', className: 'zone-safe' };
+        }
+        if (heartRate <= 140) {
             return { label: '🟡 Elevated', className: 'zone-elevated' };
-        if (heartRate > 140)
-            return { label: '🔴 Too high — slow down', className: 'zone-danger' };
-        return { label: '🟢 Safe zone', className: 'zone-safe' };
+        }
+        return { label: '🔴 Stop', className: 'zone-danger' };
     };
 
     const zone = getZone();
+
+    const scrollTutorials = (direction: 'left' | 'right') => {
+        const container = carouselRef.current;
+        if (!container) return;
+        container.scrollBy({
+            left: direction === 'right' ? 220 : -220,
+            behavior: 'smooth',
+        });
+    };
 
     // Pre-session screen
     if (state === 'pre') {
@@ -87,6 +106,9 @@ export default function ExercisePage() {
                 <div className="card" style={{ marginTop: 'var(--space-md)' }}>
                     <p style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 'var(--space-sm)' }}>
                         {todaySession.totalDuration}-minute {todaySession.type.toLowerCase()}
+                    </p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 'var(--space-md)' }}>
+                        Choose a quick preview before you start. Demo mode uses guided placeholders only.
                     </p>
 
                     <div style={{
@@ -104,6 +126,161 @@ export default function ExercisePage() {
                             <p style={{ fontWeight: 600 }}>Watch: How to warm up</p>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>30 seconds</p>
                         </div>
+                    </div>
+
+                    <div style={{ marginBottom: 'var(--space-lg)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-sm)' }}>
+                            <p style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>
+                                Workout Previews
+                            </p>
+                            <div style={{ display: 'flex', gap: 6 }}>
+                                <button
+                                    type="button"
+                                    onClick={() => scrollTutorials('left')}
+                                    style={{
+                                        width: 28,
+                                        height: 28,
+                                        borderRadius: '999px',
+                                        border: '1px solid var(--border-glass)',
+                                        background: 'var(--bg-glass)',
+                                        color: 'var(--text-secondary)',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    ‹
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => scrollTutorials('right')}
+                                    style={{
+                                        width: 28,
+                                        height: 28,
+                                        borderRadius: '999px',
+                                        border: '1px solid var(--border-glass)',
+                                        background: 'var(--bg-glass)',
+                                        color: 'var(--text-secondary)',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    ›
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            ref={carouselRef}
+                            style={{
+                            display: 'flex',
+                            gap: 'var(--space-sm)',
+                            overflowX: 'auto',
+                            paddingBottom: 'var(--space-xs)',
+                            scrollSnapType: 'x mandatory',
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                        }}>
+                            {exerciseTutorials.map((tutorial) => (
+                                <button
+                                    key={tutorial.id}
+                                    onClick={() => setSelectedTutorial(tutorial)}
+                                    style={{
+                                        border: selectedTutorial.id === tutorial.id ? '1px solid var(--accent-teal)' : '1px solid var(--border-glass)',
+                                        background: 'var(--bg-glass)',
+                                        borderRadius: 'var(--radius-md)',
+                                        padding: 'var(--space-sm)',
+                                        display: 'grid',
+                                        gap: 'var(--space-sm)',
+                                        alignItems: 'stretch',
+                                        color: 'inherit',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        minWidth: 200,
+                                        flex: '0 0 auto',
+                                        scrollSnapAlign: 'start',
+                                        boxShadow: selectedTutorial.id === tutorial.id
+                                            ? '0 0 0 1px rgba(0,212,170,0.28), 0 10px 22px rgba(0,212,170,0.14)'
+                                            : 'none',
+                                        transform: selectedTutorial.id === tutorial.id ? 'translateY(-1px)' : 'translateY(0)',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    <div style={{
+                                        borderRadius: '10px',
+                                        border: '1px solid var(--border-glass)',
+                                        background: tutorial.thumbnail,
+                                        minHeight: 68,
+                                        display: 'grid',
+                                        placeItems: 'center',
+                                        fontSize: '1.2rem',
+                                    }}>
+                                        ▶
+                                    </div>
+                                    <div>
+                                        <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                                            <span style={{
+                                                padding: '2px 8px',
+                                                borderRadius: '999px',
+                                                fontSize: '0.68rem',
+                                                fontWeight: 700,
+                                                background: tutorial.badge === 'New' ? 'var(--accent-blue-dim)' : 'var(--accent-teal-dim)',
+                                                color: tutorial.badge === 'New' ? 'var(--accent-blue)' : 'var(--accent-teal)',
+                                                textTransform: 'uppercase',
+                                            }}>
+                                                {tutorial.badge}
+                                            </span>
+                                        </div>
+                                        <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tutorial.title}</p>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+                                            {tutorial.duration} · {tutorial.level} · {tutorial.coach}
+                                        </p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid var(--border-glass)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: 'var(--space-md)',
+                        marginBottom: 'var(--space-lg)',
+                    }}>
+                        <p style={{ fontWeight: 600, marginBottom: 'var(--space-xs)' }}>
+                            {selectedTutorial.title} (Preview)
+                        </p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: 'var(--space-sm)' }}>
+                            {selectedTutorial.focus}
+                        </p>
+                        <div style={{
+                            borderRadius: '10px',
+                            border: '1px solid var(--border-glass)',
+                            overflow: 'hidden',
+                            background: '#000',
+                        }}>
+                            <iframe
+                                title={selectedTutorial.title}
+                                width="100%"
+                                height="220"
+                                src={`https://www.youtube.com/embed/${selectedTutorial.videoId}?rel=0&modestbranding=1`}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                allowFullScreen
+                                style={{ border: 0, display: 'block' }}
+                            />
+                        </div>
+                        <a
+                            href={`https://www.youtube.com/watch?v=${selectedTutorial.videoId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                                display: 'inline-block',
+                                marginTop: 'var(--space-sm)',
+                                fontSize: '0.78rem',
+                                color: 'var(--accent-teal)',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            If preview is blocked, open on YouTube ↗
+                        </a>
                     </div>
 
                     <p style={{ fontWeight: 700, marginBottom: 'var(--space-md)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>
@@ -145,16 +322,6 @@ export default function ExercisePage() {
                 <button className="btn btn-primary btn-full" onClick={() => setState('active')}>
                     I&apos;m ready — start ▶
                 </button>
-
-                <Link href="/exercise/library" style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    color: 'var(--accent-teal)',
-                    marginTop: 'var(--space-md)',
-                    fontSize: '0.9rem',
-                }}>
-                    Show me the stretches
-                </Link>
             </div>
         );
     }
@@ -222,7 +389,7 @@ export default function ExercisePage() {
 
             {/* Timer */}
             <div className="timer-display">
-                {formatTime(elapsed)} / {formatTime(phaseDuration)}
+                {formatTime(remaining)}
             </div>
 
             {/* Heart Rate */}
@@ -238,6 +405,9 @@ export default function ExercisePage() {
             <div className="card" style={{ textAlign: 'left', marginTop: 'var(--space-lg)' }}>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.7 }}>
                     &ldquo;{phase.instruction}&rdquo;
+                </p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: 'var(--space-sm)' }}>
+                    {formatTime(phaseElapsed)} elapsed of {formatTime(phaseDuration)} in this phase
                 </p>
             </div>
 
