@@ -109,7 +109,7 @@ export default function ClinicianPage() {
                                     <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#64748B' }} tickFormatter={(w) => `W${w}`} />
                                     <YAxis tick={{ fontSize: 11, fill: '#64748B' }} domain={[65, 90]} />
                                     <Tooltip contentStyle={{ background: '#111D35', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
-                                    <Line type="monotone" dataKey="restingHR" stroke="#00D4AA" strokeWidth={2} dot={{ r: 4, fill: '#00D4AA' }} />
+                                    <Line type="monotone" dataKey="restingHR" stroke="#16a34a" strokeWidth={2} dot={{ r: 4, fill: '#16a34a' }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>

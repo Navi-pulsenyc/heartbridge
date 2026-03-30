@@ -16,9 +16,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#0A1628",
+  /** Allow pinch-zoom — important for low vision and many older adults */
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#16a34a",
 };
 
 export default function RootLayout({
@@ -32,8 +33,13 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <div className="app-container">
-          {children}
+          <main id="main-content" tabIndex={-1}>
+            {children}
+          </main>
           <BottomNav />
         </div>
       </body>

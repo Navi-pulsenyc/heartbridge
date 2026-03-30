@@ -21,7 +21,7 @@ export const patient = {
     preferredHospital: 'Mount Sinai Heart',
     address: '42 Oak Street, Yonkers, NY',
     phone: '(212) 555-0147',
-    personalWhy: 'Keep up with my future grandchildren',
+    personalWhy: 'Stay strong for my daughter\'s weekly calls',
     interests: ['gardening', 'cooking', 'walking outdoors'],
     learningGoals: ['heart-healthy cooking', 'stress management'],
     connectPreferences: ['people my age', 'people with similar hobbies'],

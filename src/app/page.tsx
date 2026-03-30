@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronRight, Shield, MessageCircle } from 'lucide-react';
 import {
   patient,
@@ -29,55 +30,52 @@ export default function HomePage() {
 
   return (
     <div className="page">
-      {/* 🛡️ GUARDIAN STATUS — THE HERO */}
-      <div className="guardian-card" style={{ animation: 'fadeInUp 0.4s ease forwards' }}>
+      {/* Guardian — safety / monitoring (above rewards) */}
+      <div className="guardian-card stagger-1" style={{ animation: 'fadeInUp 0.4s ease forwards', animationFillMode: 'forwards' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
           <div className="guardian-icon">
-            <Shield size={28} />
+            <Shield size={28} strokeWidth={2} aria-hidden />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '0.02em' }}>
-              GUARDIAN ACTIVE
-            </div>
-            <div style={{ fontSize: '0.85rem', color: 'rgba(16, 185, 129, 0.8)' }}>
-              Watching your heart
-            </div>
+            <div className="guardian-title">GUARDIAN ACTIVE</div>
+            <div className="guardian-sub">Watching your heart</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.8rem', fontWeight: 800 }}>74</div>
-            <div style={{ fontSize: '0.7rem', color: 'rgba(16, 185, 129, 0.7)' }}>bpm</div>
+            <div className="guardian-bpm-value">{todayVitals.heartRate.value ?? '—'}</div>
+            <div className="guardian-bpm-label">bpm</div>
           </div>
         </div>
-        <div style={{ fontSize: '0.78rem', color: 'rgba(16, 185, 129, 0.6)', marginTop: 'var(--space-sm)' }}>
+        <div className="guardian-meta">
           Last checked: {hrAge} seconds ago
         </div>
-        <Link href="/emergency" style={{ textDecoration: 'none' }}>
-          <div style={{
-            marginTop: 'var(--space-md)',
-            padding: '10px var(--space-md)',
-            background: 'rgba(16, 185, 129, 0.08)',
-            borderRadius: 'var(--radius-md)',
-            fontSize: '0.8rem',
-            color: 'rgba(16, 185, 129, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-sm)',
-          }}>
-            <Shield size={14} />
-            If something happens, I&apos;ll get help in under 90 seconds
-            <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
+        <Link href="/emergency" style={{ textDecoration: 'none', color: 'inherit' }} aria-label="Emergency and safety information">
+          <div className="guardian-assurance">
+            <Shield size={18} strokeWidth={2} aria-hidden />
+            <span style={{ flex: 1 }}>
+              If something happens, I&apos;ll get help in under 90 seconds
+            </span>
+            <ChevronRight size={18} aria-hidden style={{ flexShrink: 0 }} />
           </div>
         </Link>
       </div>
 
-      {/* Greeting + Progress */}
-      <div style={{ marginBottom: 'var(--space-lg)', animation: 'fadeInUp 0.5s ease forwards', animationDelay: '0.05s', opacity: 0, animationFillMode: 'forwards' }}>
+      {/* Greeting + week progress (clinical dashboard) */}
+      <div
+        className="home-greeting-block"
+        style={{
+          marginBottom: 'var(--space-lg)',
+          animation: 'fadeInUp 0.5s ease forwards',
+          animationDelay: '0.05s',
+          opacity: 0,
+          animationFillMode: 'forwards',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>
+            <h1 style={{ fontSize: '1.55rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
               Good morning, {patient.firstName}
             </h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 4 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: 8, fontWeight: 500 }}>
               Week {patient.currentWeek} of {patient.totalWeeks} · {patient.sessionsCompleted}/{patient.totalSessions} sessions
             </p>
           </div>
@@ -87,43 +85,67 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* AI Companion Card (Moved to front per user request) */}
-      <Link href="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <div className="card stagger-1" style={{ animationFillMode: 'forwards', background: 'linear-gradient(145deg, rgba(0,212,170,0.1) 0%, rgba(0,0,0,0) 100%)', border: '1px solid rgba(0,212,170,0.3)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-            <div style={{ background: 'var(--accent-teal-dim)', color: 'var(--accent-teal)', padding: '12px', borderRadius: '50%' }}>
-              <MessageCircle size={28} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>HeartBridge AI Coach</p>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 2 }}>Tap to chat, log symptoms, or ask questions 24/7.</p>
-            </div>
-            <ChevronRight size={20} color="var(--accent-teal)" />
-          </div>
-        </div>
-      </Link>
-
-      {/* Rewards & Incentives */}
-      <div className="card stagger-2" style={{ animationFillMode: 'forwards' }}>
+      {/* Next Reward */}
+      <div
+        className="card stagger-2"
+        style={{
+          animationFillMode: 'forwards',
+          marginBottom: 'var(--space-md)',
+          borderColor: 'rgba(234, 179, 8, 0.35)',
+          background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 55%)',
+        }}
+      >
         <div className="card-header">
-          <span className="card-title">🎁 Next Reward</span>
-          <span className="badge badge-yellow" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#FBBF24' }}>450 / 500 pts</span>
+          <span className="card-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span aria-hidden>🎁</span>
+            <img
+              src="/next-reward-dot.png"
+              alt=""
+              width={10}
+              height={10}
+              style={{ display: 'block', flexShrink: 0 }}
+            />
+            Next Reward
+          </span>
+          <span className="badge badge-yellow" style={{ background: 'var(--accent-amber-dim)', color: '#854d0e', border: '1px solid rgba(234, 179, 8, 0.5)' }}>
+            450 / 500 PTS
+          </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginBottom: 'var(--space-sm)' }}>
-          <div style={{ fontSize: '2rem' }}>👕</div>
+          <div
+            style={{
+              width: 88,
+              height: 88,
+              borderRadius: 'var(--radius-md)',
+              overflow: 'hidden',
+              flexShrink: 0,
+              border: '1px solid var(--border-glass)',
+              background: 'var(--bg-secondary)',
+            }}
+          >
+            <Image
+              src="/reward-nike-tee.png"
+              alt="Nike x HeartBridge Dri-FIT Tee — lifestyle preview"
+              width={88}
+              height={88}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%' }}
+            />
+          </div>
           <div>
-            <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>Nike x HeartBridge Dri-FIT Tee</p>
+            <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>
+              Nike x <span style={{ background: 'rgba(22, 163, 74, 0.15)', padding: '0 6px', borderRadius: 4, color: 'var(--health-mint-muted)', border: '1px solid rgba(234, 179, 8, 0.45)' }}>HeartBridge</span> Dri-FIT Tee
+            </p>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Complete 2 more sessions to earn!</p>
           </div>
         </div>
-        <div className="progress-bar" style={{ background: 'rgba(255,255,255,0.05)' }}>
-          <div className="progress-bar-fill" style={{ width: '90%', background: 'linear-gradient(90deg, #F59E0B, #FBBF24)' }} />
+        <div className="progress-bar" style={{ background: 'rgba(234, 179, 8, 0.25)' }}>
+          <div className="progress-bar-fill" style={{ width: '90%', background: 'linear-gradient(90deg, #ca8a04, #eab308)' }} />
         </div>
       </div>
 
       {/* Today's Exercise */}
       <Link href="/exercise" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <div className="card stagger-3" style={{ animationFillMode: 'forwards' }}>
+        <div className="card stagger-3" style={{ animationFillMode: 'forwards', marginBottom: 'var(--space-md)' }}>
           <div className="card-header">
             <span className="card-title">🏃 Today&apos;s Session</span>
             <span className="badge badge-teal">Day {todaySession.day}</span>
@@ -140,9 +162,25 @@ export default function HomePage() {
         </div>
       </Link>
 
+      {/* AI Companion Card */}
+      <Link href="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <div className="card stagger-4 card-coach" style={{ animationFillMode: 'forwards' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+            <div style={{ background: 'var(--accent-teal-dim)', color: 'var(--accent-teal)', padding: '12px', borderRadius: '50%' }}>
+              <MessageCircle size={28} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>Rosa AI</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 2 }}>Tap to chat, log symptoms, or ask questions 24/7.</p>
+            </div>
+            <ChevronRight size={20} color="var(--accent-teal)" />
+          </div>
+        </div>
+      </Link>
+
       {/* Medications */}
       <Link href="/medications" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <div className="card stagger-4" style={{ animationFillMode: 'forwards' }}>
+        <div className="card stagger-5" style={{ animationFillMode: 'forwards' }}>
           <div className="card-header">
             <span className="card-title">💊 Medications</span>
             <span className="card-link">View all <ChevronRight size={14} /></span>
@@ -159,7 +197,7 @@ export default function HomePage() {
       </Link>
 
       {/* Log My Numbers */}
-      <div className="card stagger-5" style={{ animationFillMode: 'forwards' }}>
+      <div className="card stagger-6" style={{ animationFillMode: 'forwards' }}>
         <div className="card-header">
           <span className="card-title">📋 Log My Numbers</span>
         </div>
@@ -186,7 +224,7 @@ export default function HomePage() {
       </div>
 
       {/* Care Team */}
-      <div className="card stagger-6" style={{ animationFillMode: 'forwards' }}>
+      <div className="card stagger-7" style={{ animationFillMode: 'forwards' }}>
         <div className="card-header">
           <span className="card-title">👩‍⚕️ Care Team</span>
         </div>
